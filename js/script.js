@@ -75,10 +75,11 @@ function operate(operator, numberA, numberB)
 {
     const availableOperators = ['+', '-', '*', '/', '**'];
 
-    if (!availableOperators.some(element => element === operator)) return 0;
-    if (Number.isNaN(numberA) || Number.isNaN(numberB)) return 0;
+    if (!availableOperators.includes(operator)) return 0;
 
-    switch (availableOperators) {
+    if (Number.isNaN(numberA) || Number.isNaN(numberB)) return 0;
+    
+    switch (operator) {
         case '+':
             return addition(numberA, numberB);
         case '-':
