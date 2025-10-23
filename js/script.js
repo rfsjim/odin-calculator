@@ -1,10 +1,21 @@
 /**
- * Functions for all of the basic math operators you typically find on calculators
+ * @fileoverview A Web Based Cacluator in JavaScript
+ * @author James
+ * @version 0.0.1
+ * @date 22nd October 2025
+ * @updated 23rd October 2025
+ * 
+ * @description
+ * JavaScript based Calculator Browser Application
+ * For the Odin Project
+ * Includes Functions for all of the basic math operators you typically find on calculators
  * addition
  * subtraction
  * multiplication
  * division
  */
+
+renderCalculator();
 
 /**
  * Add two numbers together
@@ -92,5 +103,31 @@ function operate(operator, numberA, numberB)
             return power(numberA, numberB);
         default:
             return 0;
+    }
+}
+
+/**
+ * Renders HTML Calculator interface
+ * Creates grid of 4 x 5 DOM elements required
+ * @returns {void} 
+ */
+function renderCalculator()
+{
+    const NUMBER_OF_ROWS = 5, NUMBER_OF_COLS = 4;
+    const calculatorContainer = document.querySelector("div#calculatorContainer");
+
+    for (let i = 0; i < NUMBER_OF_ROWS; i++)
+    {
+        const rowWrapper = document.createElement("div");
+        rowWrapper.classList.add("row");
+
+        for (let j = 0; j < NUMBER_OF_COLS; j++)
+        {
+            const btn = document.createElement("button");
+            btn.textContent = j;
+            rowWrapper.appendChild(btn);
+        }
+
+        calculatorContainer.appendChild(rowWrapper);
     }
 }

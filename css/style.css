@@ -1,1 +1,31 @@
 /* Styling for calculator */
+
+body {
+    background-color: #bfbfbf;
+    color: #000;
+}
+
+#container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#calculatorContainer {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+}
+
+button {
+    width: 20%;
+    height: 11vmax;
+    margin: 0 0 5px;
+}
