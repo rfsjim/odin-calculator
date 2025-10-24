@@ -15,6 +15,9 @@
  * division
  */
 
+// A calculator operation will consist of a number, an operator, and another number.
+let numberA, numberB, operator, results;
+
 renderCalculator();
 
 /**
@@ -72,9 +75,6 @@ function power(base, exponent)
     return base ** exponent;
 }
 
-// A calculator operation will consist of a number, an operator, and another number.
-let numberA, numberB, operator;
-
 /**
  * Take an operator and two numbers, then call a mathematically function
  * @param {string} operator 
@@ -116,12 +116,11 @@ function renderCalculator()
     const NUMBER_OF_ROWS = 5, NUMBER_OF_COLS = 4;
     const calculatorContainer = document.querySelector("div#calculatorContainer");
 
-    const result = document.createElement("input");
-    result.readOnly = true;
-    result.setAttribute("id", "results");
-    result.value = "8008135";
+    results = document.createElement("input");
+    results.readOnly = true;
+    results.setAttribute("id", "results");
 
-    calculatorContainer.appendChild(result);
+    calculatorContainer.appendChild(results);
 
     for (let i = 0; i < NUMBER_OF_ROWS; i++)
     {
@@ -135,6 +134,8 @@ function renderCalculator()
 
             btn.textContent = renderButtons(i, j);
             btn.dataset.label = renderButtons(i, j);
+
+            btn.addEventListener("click",(e) => clickHandler(e));
         }
 
         calculatorContainer.appendChild(rowWrapper);
@@ -163,12 +164,70 @@ function renderButtons(i, j)
 
 /**
  * Renders the result of the calculation into the text display
- * @param {number} numberA 
- * @param {number} numberB 
- * @param {string} operator 
+ * @param {number} numberA First number in equation
+ * @param {number} numberB  Second number in equation
+ * @param {string} operator operator working on numbers
  */
 function renderResult(numberA, numberB, operator)
 {
-    const result = document.querySelector("input#results");
-    result.value = operate(operator, numberA, numberB);
+    results.value = operate(operator, numberA, numberB);
+}
+
+/**
+ * Handle clicks of calculator buttons
+ * @param {MouseEvent} event 
+ */
+function clickHandler(event)
+{   
+    switch (event.target.dataset.label) {
+        case "CLEAR":
+            results.value = "";
+            numberA = 0;
+            numberB = 0;
+            operator = 0;
+            break;
+        case "DEL":
+            results.value = results.value.substring(0, results.value.length - 1);
+            break;
+        case "=":
+            if (!numberB)
+            {
+                numberB = parseInt(results.value);
+            }
+            results.value = operate(operator, numberA, numberB);
+        case "%":
+        case "/":
+        case "*":
+        case "-":
+        case "+":
+            console.log(`${numberA}, ${numberB}, ${operator}`);
+            console.log(`${!numberA}, ${!numberB}`);
+            
+            if (numberA === 0 || !numberA)
+            {
+                numberA = parseInt(results.value);
+                operator = event.target.dataset.label;
+                results.value = "";
+            } else
+            {
+                numberB = operate(event.target.dataset.label, numberA, parseInt(results.value));
+                results.value = "";
+                results.value = numberB;
+            }
+            break;
+        case "0":
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9":
+            results.value += event.target.dataset.label;
+            break;
+        default:
+            break;
+    }
 }
