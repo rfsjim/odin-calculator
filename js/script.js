@@ -160,3 +160,15 @@ function renderButtons(i, j)
 
     return BUTTONS[i][j];
 }
+
+/**
+ * Renders the result of the calculation into the text display
+ * @param {number} numberA 
+ * @param {number} numberB 
+ * @param {string} operator 
+ */
+function renderResult(numberA, numberB, operator)
+{
+    const result = document.querySelector("input#results");
+    result.value = operate(operator, numberA, numberB);
+}
