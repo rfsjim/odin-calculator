@@ -1,7 +1,7 @@
 /**
  * @fileoverview A Web Based Cacluator in JavaScript
  * @author James
- * @version 0.0.1
+ * @version 0.0.2
  * @date 22nd October 2025
  * @updated 23rd October 2025
  * 
@@ -116,6 +116,13 @@ function renderCalculator()
     const NUMBER_OF_ROWS = 5, NUMBER_OF_COLS = 4;
     const calculatorContainer = document.querySelector("div#calculatorContainer");
 
+    const result = document.createElement("input");
+    result.readOnly = true;
+    result.setAttribute("id", "results");
+    result.value = "8008135";
+
+    calculatorContainer.appendChild(result);
+
     for (let i = 0; i < NUMBER_OF_ROWS; i++)
     {
         const rowWrapper = document.createElement("div");
@@ -124,10 +131,32 @@ function renderCalculator()
         for (let j = 0; j < NUMBER_OF_COLS; j++)
         {
             const btn = document.createElement("button");
-            btn.textContent = j;
             rowWrapper.appendChild(btn);
+
+            btn.textContent = renderButtons(i, j);
+            btn.dataset.label = renderButtons(i, j);
         }
 
         calculatorContainer.appendChild(rowWrapper);
     }
+}
+
+/**
+ * Renders the buttons for calculator
+ * Gives button a label and a html
+ * @param {number} i index i from rendering loop
+ * @param {number} j index j from rendering loop
+ * @returns {string} label for button
+ */
+function renderButtons(i, j)
+{
+    const BUTTONS = [
+        ["DEL", "CLEAR", "%", "/"],
+        ["7", "8", "9", "*"],
+        ["4", "5", "6", "-"],
+        ["1", "2", "3", "+"],
+        ["+/-", "0", ".", "="]
+    ];
+
+    return BUTTONS[i][j];
 }

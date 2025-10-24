@@ -24,8 +24,22 @@ body {
     justify-content: space-evenly;
 }
 
-button {
+button, input {
     width: 20%;
-    height: 11vmax;
-    margin: 0 0 5px;
+    height: 8vmax;
+    margin: 0 0 1vh;
+    font-size: 40px;
+    font-weight: bold;
+    border-radius: 25%;
+}
+
+input#results {
+    width: 90%;
+    margin-bottom: 3vh;
+    text-align: center;
+    font-size: 60px;
+}
+
+h1 {
+    text-transform: uppercase;
 }
