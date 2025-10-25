@@ -24,6 +24,7 @@ const calculatorState = {
     numberA: null, // first number in calculation
     numberB: null, // second number in calculation
     operator: null, // operator for calculation
+    previousOperator: null, // last operator or operator if first
     lastKeyPressed: null, // tracks last key pressed for clean UI updating
     availableOperators: ['+', '-', '*', '/', '**'], // array of allowed operators
 
@@ -78,6 +79,20 @@ const calculatorState = {
         }
     },
     /**
+     * Gets Previous Used Operator OR current operator if first
+     * @returns {string} previous operator of equation
+     */
+    getPreviousOperator() {
+        return this.previousOperator;
+    },
+    /**
+     * Sets Previous Operator for Equation
+     * @param {string} value previous operator for equation 
+     */
+    setPreviousOperator(value) {
+        this.previousOperator = value;
+    },
+    /**
      * Returns the last key pressed
      * @returns {string} last key pressed
      */
@@ -93,6 +108,7 @@ const calculatorState = {
     },
 
     // other calculator methods
+
     /**
      * Clears the calculator registers
      */
@@ -296,19 +312,21 @@ function renderResult(numberA, numberB, operator)
  */
 function clickHandler(event)
 {   
+    const { label } = event.target.dataset;
+
     if (calculatorState.isLastKeyPressedEqual())
     {
         results.value = "";
         calculatorState.clear();
     }
 
-    switch (event.target.dataset.label) {
+    switch (label) {
         case "CLEAR":
             results.value = "";
             calculatorState.clear();
             break;
         case "DEL":
-            results.value = results.value.substring(0, results.value.length - 1);
+            results.value = results.value.slice(0, -1);
             break;
         case "=":
             if (!calculatorState.getNumberB())
@@ -332,23 +350,43 @@ function clickHandler(event)
             // If consecutive operator buttons are pressed, do not run any evaluations,
             // Take the last operator entered to be used for the next operation.
 
-            calculatorState.setOperator(event.target.dataset.label);
+            // If the last key pressed was an operator do nothing
 
             if (calculatorState.isLastKeyPressedAnOperator())
             {
+                calculatorState.setOperator(label);
                 break;
             }
 
-            if (!calculatorState.getNumberA())
+            if (calculatorState.getPreviousOperator() === null)
+            {
+                calculatorState.setPreviousOperator(label);
+            }
+
+            // if we have A and B
+            if (calculatorState.getNumberA() !== null && calculatorState.getNumberB() !== null &&
+                !Number.isNaN(calculatorState.getNumberA()) && !Number.isNaN(calculatorState.getNumberB()))
+            {
+                renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getPreviousOperator());
+                calculatorState.setNumberA(parseFloat(results.value));
+                results.value = "";
+            }
+
+            // If A or B are not set store A or B from the input and clear the input
+            if (calculatorState.getNumberA() === null || Number.isNaN(calculatorState.getNumberA()))
             {
                 calculatorState.setNumberA(parseFloat(results.value));
                 results.value = "";
-            } else
+            }
+
+            if (calculatorState.getNumberB() === null || Number.isNaN(calculatorState.getNumberB()))
             {
                 calculatorState.setNumberB(parseFloat(results.value));
-                renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getOperator());
-                calculatorState.setNumberA(parseFloat(results.value));
+                results.value = "";
             }
+            calculatorState.setOperator(label);
+
+            calculatorState.setPreviousOperator(label);
             break;
         case "0":
         case "1":
@@ -360,11 +398,11 @@ function clickHandler(event)
         case "7":
         case "8":
         case "9":
-            results.value += event.target.dataset.label;
+            results.value += label;
             break;
         default:
             break;
     }
 
-    calculatorState.setLastKeyPressed(event.target.dataset.label);
+    calculatorState.setLastKeyPressed(label);
 }
