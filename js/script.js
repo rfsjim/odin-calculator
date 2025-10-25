@@ -1,7 +1,7 @@
 /**
  * @fileoverview A Web Based Cacluator in JavaScript
  * @author James
- * @version 0.0.2
+ * @version 0.0.13
  * @date 22nd October 2025
  * @updated 23rd October 2025
  * 
@@ -13,6 +13,8 @@
  * subtraction
  * multiplication
  * division
+ * 
+ * The calculator does not evaluate more than a sinlge pair of numbers at a time.
  */
 
 // A calculator operation will consist of a number, an operator, and another number.
@@ -23,38 +25,95 @@ const calculatorState = {
     numberB: null, // second number in calculation
     operator: null, // operator for calculation
     lastKeyPressed: null, // tracks last key pressed for clean UI updating
+    availableOperators: ['+', '-', '*', '/', '**'], // array of allowed operators
 
     // getters and setters for properties
+
+    /**
+     * Gets Number A
+     * @returns {number} first number of equation
+     */
     getNumberA() {
         return this.numberA;
     },
+    /**
+     * Sets Number A
+     * @param {number} value value of first number of equation 
+     */
     setNumberA(value) {
         this.numberA = value;
     },
+    /**
+     * Gets Number B
+     * @returns {number} second number of equation
+     */
     getNumberB() {
         return this.numberB;
     },
+    /**
+     * Sets Number B
+     * @param {number} value value of second number of equation
+     */
     setNumberB(value) {
         this.numberB = value;
     },
+    /**
+     * Gets Equation Operator
+     * @returns {string} operator of equation
+     */
     getOperator() {
         return this.operator;
     },
+    /**
+     * Sets Operation for Equation
+     * @param {string} value of operator for equation 
+     */
     setOperator(value) {
-        this.operator = value;
+        if (this.availableOperators.includes(value))
+        {
+            this.operator = value;
+        } else
+        {
+            throw new Error("Operator Value Error");
+        }
     },
+    /**
+     * Returns the last key pressed
+     * @returns {string} last key pressed
+     */
     getLastKeyPressed() {
         return this.lastKeyPressed;
     },
+    /**
+     * Sets the last key pressed
+     * @param {string} value value of last key pressed 
+     */
     setLastKeyPressed(value) {
         this.lastKeyPressed = value;
     },
 
     // other calculator methods
+    /**
+     * Clears the calculator registers
+     */
     clear() {
         this.numberA = null;
         this.numberB = null;
         this.operator = null;
+    },
+    /**
+     * Was last key pressed equals
+     * @returns {boolean}
+     */
+    isLastKeyPressedEqual() {
+        return this.getLastKeyPressed() === "=";
+    },
+    /**
+     * Was last key pressed an operator
+     * @returns {boolean}
+     */
+    isLastKeyPressedAnOperator() {
+        return this.availableOperators.includes(this.lastKeyPressed);
     }
 };
 
@@ -64,7 +123,7 @@ renderCalculator();
  * Add two numbers together
  * @param {number} a 
  * @param {number} b 
- * @returns {number} 
+ * @returns {number} The sum of a and b
  */
 function addition(a, b)
 {
@@ -72,10 +131,10 @@ function addition(a, b)
 }
 
 /**
- * Subtracts two numbers together 
+ * Subtracts two numbers
  * @param {number} a 
  * @param {number} b 
- * @returns {number}
+ * @returns {number} The difference of a and b
  */
 function subtraction(a, b)
 {
@@ -86,33 +145,49 @@ function subtraction(a, b)
  * Multiplies two numbers together
  * @param {number} a 
  * @param {number} b 
- * @returns {number}
+ * @returns {number} The product of a and b
  */
 function multiplication(a, b)
 {
-    return a * b;
+    return roundToDecimal((a * b), 3);
 }
 
 /**
- * Divides two numbers
- * @param {number} a 
- * @param {number} b 
- * @returns {number}
+ * Divides two numbers, tests for divide by zero errors
+ * @param {number} a The numerator
+ * @param {number} b The denominator (can not be zero)
+ * @returns {number} The quotient of a and b
  */
 function division(a, b)
 {
-    return a / b;
+    if (b === 0)
+    {
+        throw new Error("Can not divide by zero");
+    }
+    return roundToDecimal((a / b), 3);
 }
 
 /**
  * Calculates power
  * @param {number} base 
  * @param {number} exponent 
- * @returns {number}
+ * @returns {number} The power
  */
 function power(base, exponent)
 {
-    return base ** exponent;
+    return roundToDecimal((base ** exponent), 3);
+}
+
+/**
+ * Rounds a number to a specified amount of decimal places
+ * @param {number} number The number to round
+ * @param {number} decimalPlaces The number of decimal places to round to
+ * @returns {number} The rounded number
+ */
+function roundToDecimal(number, decimalPlaces)
+{
+    const multiplier = Math.pow(10, decimalPlaces);
+    return Math.round(number * multiplier) / multiplier;
 }
 
 /**
@@ -120,13 +195,11 @@ function power(base, exponent)
  * @param {string} operator 
  * @param {number} numberA 
  * @param {number} numberB
- * @returns {number} 
+ * @returns {number} The resultant of the function
  */
 function operate(operator, numberA, numberB)
 {
-    const availableOperators = ['+', '-', '*', '/', '**'];
-
-    if (!availableOperators.includes(operator)) return 0;
+    if (!calculatorState.availableOperators.includes(operator)) return 0;
 
     if (Number.isNaN(numberA) || Number.isNaN(numberB)) return 0;
     
@@ -210,7 +283,11 @@ function renderButtons(i, j)
  */
 function renderResult(numberA, numberB, operator)
 {
-    results.value = operate(operator, numberA, numberB);
+    try {
+        results.value = operate(operator, numberA, numberB);   
+    } catch (error) {
+        results.value = error;
+    }
 }
 
 /**
@@ -219,7 +296,7 @@ function renderResult(numberA, numberB, operator)
  */
 function clickHandler(event)
 {   
-    if (calculatorState.getLastKeyPressed() === "=")
+    if (calculatorState.isLastKeyPressedEqual())
     {
         results.value = "";
         calculatorState.clear();
@@ -227,7 +304,6 @@ function clickHandler(event)
 
     switch (event.target.dataset.label) {
         case "CLEAR":
-            // empties registers
             results.value = "";
             calculatorState.clear();
             break;
@@ -246,15 +322,32 @@ function clickHandler(event)
         case "*":
         case "-":
         case "+":
+            // Enter numberA, enter operator, enter numberB
+            // Enter a second operator, evaluate the inital pair of numbers
+            // Then display the result
+            // Enter another number
+            // Enter equals or an additional operator
+            // Use the previous result as the first number, the operator, and new numner
+            // Calculate the new equation and display the result
+            // If consecutive operator buttons are pressed, do not run any evaluations,
+            // Take the last operator entered to be used for the next operation.
+
+            calculatorState.setOperator(event.target.dataset.label);
+
+            if (calculatorState.isLastKeyPressedAnOperator())
+            {
+                break;
+            }
+
             if (!calculatorState.getNumberA())
             {
                 calculatorState.setNumberA(parseFloat(results.value));
-                calculatorState.setOperator(event.target.dataset.label);
                 results.value = "";
             } else
             {
-                calculatorState.setNumberB(operate(event.target.dataset.label, calculatorState.getNumberA(), parseFloat(results.value)));
-                results.value = calculatorState.getNumberB();
+                calculatorState.setNumberB(parseFloat(results.value));
+                renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getOperator());
+                calculatorState.setNumberA(parseFloat(results.value));
             }
             break;
         case "0":
