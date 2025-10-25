@@ -22,6 +22,7 @@ const calculatorState = {
     numberA: null, // first number in calculation
     numberB: null, // second number in calculation
     operator: null, // operator for calculation
+    lastKeyPressed: null, // tracks last key pressed for clean UI updating
 
     // getters and setters for properties
     getNumberA() {
@@ -41,6 +42,12 @@ const calculatorState = {
     },
     setOperator(value) {
         this.operator = value;
+    },
+    getLastKeyPressed() {
+        return this.lastKeyPressed;
+    },
+    setLastKeyPressed(value) {
+        this.lastKeyPressed = value;
     },
 
     // other calculator methods
@@ -212,6 +219,12 @@ function renderResult(numberA, numberB, operator)
  */
 function clickHandler(event)
 {   
+    if (calculatorState.getLastKeyPressed() === "=")
+    {
+        results.value = "";
+        calculatorState.clear();
+    }
+
     switch (event.target.dataset.label) {
         case "CLEAR":
             // empties registers
@@ -259,4 +272,6 @@ function clickHandler(event)
         default:
             break;
     }
+
+    calculatorState.setLastKeyPressed(event.target.dataset.label);
 }
