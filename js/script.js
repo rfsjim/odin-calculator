@@ -16,7 +16,40 @@
  */
 
 // A calculator operation will consist of a number, an operator, and another number.
-let numberA, numberB, operator, results;
+let results;
+
+const calculatorState = {
+    numberA: null, // first number in calculation
+    numberB: null, // second number in calculation
+    operator: null, // operator for calculation
+
+    // getters and setters for properties
+    getNumberA() {
+        return this.numberA;
+    },
+    setNumberA(value) {
+        this.numberA = value;
+    },
+    getNumberB() {
+        return this.numberB;
+    },
+    setNumberB(value) {
+        this.numberB = value;
+    },
+    getOperator() {
+        return this.operator;
+    },
+    setOperator(value) {
+        this.operator = value;
+    },
+
+    // other calculator methods
+    clear() {
+        this.numberA = null;
+        this.numberB = null;
+        this.operator = null;
+    }
+};
 
 renderCalculator();
 
@@ -181,38 +214,34 @@ function clickHandler(event)
 {   
     switch (event.target.dataset.label) {
         case "CLEAR":
+            // empties registers
             results.value = "";
-            numberA = 0;
-            numberB = 0;
-            operator = 0;
+            calculatorState.clear();
             break;
         case "DEL":
             results.value = results.value.substring(0, results.value.length - 1);
             break;
         case "=":
-            if (!numberB)
+            if (!calculatorState.getNumberB())
             {
-                numberB = parseInt(results.value);
+                calculatorState.setNumberB(parseFloat(results.value));
             }
-            results.value = operate(operator, numberA, numberB);
+            renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getOperator());
+            break;
         case "%":
         case "/":
         case "*":
         case "-":
         case "+":
-            console.log(`${numberA}, ${numberB}, ${operator}`);
-            console.log(`${!numberA}, ${!numberB}`);
-            
-            if (numberA === 0 || !numberA)
+            if (!calculatorState.getNumberA())
             {
-                numberA = parseInt(results.value);
-                operator = event.target.dataset.label;
+                calculatorState.setNumberA(parseFloat(results.value));
+                calculatorState.setOperator(event.target.dataset.label);
                 results.value = "";
             } else
             {
-                numberB = operate(event.target.dataset.label, numberA, parseInt(results.value));
-                results.value = "";
-                results.value = numberB;
+                calculatorState.setNumberB(operate(event.target.dataset.label, calculatorState.getNumberA(), parseFloat(results.value)));
+                results.value = calculatorState.getNumberB();
             }
             break;
         case "0":
