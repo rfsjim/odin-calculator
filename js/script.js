@@ -342,8 +342,7 @@ function renderResult(numberA, numberB, operator)
 }
 
 /**
- * Handle clicks of calculator buttons and
- * Keypresses
+ * Handle clicks of calculator buttons and key presses
  * @param {Event} event 
  */
 function clickHandler(event)
@@ -358,6 +357,9 @@ function clickHandler(event)
     {
         eventChoice = event.key;
     }
+
+    // TODO: Handle more keyboard press events within logic
+    // May be better to separate mouse press and keyup events in different handlers.
 
     switch (eventChoice) {
         case "CLEAR":
