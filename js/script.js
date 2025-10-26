@@ -1,9 +1,9 @@
 /**
  * @fileoverview A Web Based Cacluator in JavaScript
  * @author James
- * @version 0.0.13
+ * @version 1.0.00
  * @date 22nd October 2025
- * @updated 23rd October 2025
+ * @updated 26th October 2025
  * 
  * @description
  * JavaScript based Calculator Browser Application
@@ -21,12 +21,13 @@
 let results;
 
 const calculatorState = {
+    availableOperators: ['+', '-', '*', '/', '**'], // array of allowed operators
     numberA: null, // first number in calculation
     numberB: null, // second number in calculation
     operator: null, // operator for calculation
     previousOperator: null, // last operator or operator if first
     lastKeyPressed: null, // tracks last key pressed for clean UI updating
-    availableOperators: ['+', '-', '*', '/', '**'], // array of allowed operators
+    isChaining: false,
 
     // getters and setters for properties
 
@@ -106,6 +107,20 @@ const calculatorState = {
     setLastKeyPressed(value) {
         this.lastKeyPressed = value;
     },
+    /**
+     * Returns if the calculator is chaining equations
+     * @returns {boolean} if calculator is chaining
+     */
+    getIsChaining() {
+        return this.isChaining;
+    },
+    /**
+     * @param {boolean} [value=true] Defaults to true
+     * Sets that calculator is chaining state
+     */
+    setIsChaining(value = true) {
+        this.isChaining = value;
+    },
 
     // other calculator methods
 
@@ -116,6 +131,11 @@ const calculatorState = {
         this.numberA = null;
         this.numberB = null;
         this.operator = null;
+        this.lastKeyPressed = null;
+        this.previousOperator = null;
+        this.isChaining = false;
+
+        this.enableDecimalButton();
     },
     /**
      * Was last key pressed equals
@@ -130,7 +150,15 @@ const calculatorState = {
      */
     isLastKeyPressedAnOperator() {
         return this.availableOperators.includes(this.lastKeyPressed);
-    }
+    },
+    enableDecimalButton() {
+         const decimalButton = document.querySelector("#decimalButton");
+         
+         if (decimalButton.disabled === true)
+         {
+            decimalButton.disabled = false;
+         }       
+    },
 };
 
 renderCalculator();
@@ -143,7 +171,7 @@ renderCalculator();
  */
 function addition(a, b)
 {
-    return a + b;
+    return roundToDecimal((a + b), 3);
 }
 
 /**
@@ -154,7 +182,7 @@ function addition(a, b)
  */
 function subtraction(a, b)
 {
-    return a - b;
+    return roundToDecimal((a - b), 3);
 }
 
 /**
@@ -265,6 +293,11 @@ function renderCalculator()
             btn.dataset.label = renderButtons(i, j);
 
             btn.addEventListener("click",(e) => clickHandler(e));
+
+            if (btn.textContent === ".")
+            {
+                btn.id = "decimalButton";
+            } 
         }
 
         calculatorContainer.appendChild(rowWrapper);
@@ -302,7 +335,7 @@ function renderResult(numberA, numberB, operator)
     try {
         results.value = operate(operator, numberA, numberB);   
     } catch (error) {
-        results.value = error;
+        results.value = "Invalid Operation";
     }
 }
 
@@ -313,13 +346,7 @@ function renderResult(numberA, numberB, operator)
 function clickHandler(event)
 {   
     const { label } = event.target.dataset;
-
-    if (calculatorState.isLastKeyPressedEqual())
-    {
-        results.value = "";
-        calculatorState.clear();
-    }
-
+    
     switch (label) {
         case "CLEAR":
             results.value = "";
@@ -334,23 +361,21 @@ function clickHandler(event)
                 calculatorState.setNumberB(parseFloat(results.value));
             }
             renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getOperator());
+            calculatorState.setNumberA(parseFloat(results.value));
+            calculatorState.setNumberB(null);
+            calculatorState.setPreviousOperator(null);
             break;
         case "%":
         case "/":
         case "*":
         case "-":
         case "+":
-            // Enter numberA, enter operator, enter numberB
-            // Enter a second operator, evaluate the inital pair of numbers
-            // Then display the result
-            // Enter another number
-            // Enter equals or an additional operator
-            // Use the previous result as the first number, the operator, and new numner
-            // Calculate the new equation and display the result
-            // If consecutive operator buttons are pressed, do not run any evaluations,
-            // Take the last operator entered to be used for the next operation.
-
-            // If the last key pressed was an operator do nothing
+            calculatorState.enableDecimalButton;
+            
+            if (calculatorState.isLastKeyPressedEqual())
+            {
+                results.value = "";
+            }
 
             calculatorState.setOperator(label);
 
@@ -364,26 +389,30 @@ function clickHandler(event)
                 calculatorState.setPreviousOperator(label);
             }
 
+            for (let i = 0; i < 2; i++)
+            {
+                // If A or B are not set store A or B from the input and clear the input
+                if (calculatorState.getNumberA() === null || Number.isNaN(calculatorState.getNumberA()))
+                {
+                    calculatorState.setNumberA(parseFloat(results.value));
+                    results.value = "";
+                }
+
+                if (calculatorState.getNumberB() === null || Number.isNaN(calculatorState.getNumberB()))
+                {
+                    calculatorState.setNumberB(parseFloat(results.value));
+                    results.value = "";
+                }
+            }
+
             // if we have A and B
             if (calculatorState.getNumberA() !== null && calculatorState.getNumberB() !== null &&
                 !Number.isNaN(calculatorState.getNumberA()) && !Number.isNaN(calculatorState.getNumberB()))
             {
                 renderResult(calculatorState.getNumberA(), calculatorState.getNumberB(), calculatorState.getPreviousOperator());
                 calculatorState.setNumberA(parseFloat(results.value));
-                results.value = "";
-            }
-
-            // If A or B are not set store A or B from the input and clear the input
-            if (calculatorState.getNumberA() === null || Number.isNaN(calculatorState.getNumberA()))
-            {
-                calculatorState.setNumberA(parseFloat(results.value));
-                results.value = "";
-            }
-
-            if (calculatorState.getNumberB() === null || Number.isNaN(calculatorState.getNumberB()))
-            {
-                calculatorState.setNumberB(parseFloat(results.value));
-                results.value = "";
+                calculatorState.setNumberB(null);
+                calculatorState.setIsChaining();
             }
 
             calculatorState.setPreviousOperator(label);
@@ -398,8 +427,22 @@ function clickHandler(event)
         case "7":
         case "8":
         case "9":
+            if (calculatorState.isLastKeyPressedEqual())
+            {
+                results.value = "";
+                calculatorState.clear();
+            }
+
+            if (calculatorState.getIsChaining())
+            {
+                results.value = "";
+                calculatorState.setIsChaining(false);
+            }
             results.value += label;
             break;
+        case ".":
+            results.value += ".";
+            event.target.disabled = true;
         default:
             break;
     }
