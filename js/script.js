@@ -352,9 +352,10 @@ function clickHandler(event)
 
             // If the last key pressed was an operator do nothing
 
+            calculatorState.setOperator(label);
+
             if (calculatorState.isLastKeyPressedAnOperator())
             {
-                calculatorState.setOperator(label);
                 break;
             }
 
@@ -384,7 +385,6 @@ function clickHandler(event)
                 calculatorState.setNumberB(parseFloat(results.value));
                 results.value = "";
             }
-            calculatorState.setOperator(label);
 
             calculatorState.setPreviousOperator(label);
             break;
