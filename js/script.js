@@ -1,7 +1,7 @@
 /**
  * @fileoverview A Web Based Cacluator in JavaScript
  * @author James
- * @version 1.0.00
+ * @version 1.0.1
  * @date 22nd October 2025
  * @updated 26th October 2025
  * 
@@ -353,9 +353,13 @@ function clickHandler(event)
             calculatorState.clear();
             break;
         case "DEL":
-            results.value = results.value.slice(0, -1);
+            if (results.value.length > 0)
+            {
+                results.value = results.value.slice(0, -1);
+            }
             break;
         case "=":
+            calculatorState.enableDecimalButton();
             if (!calculatorState.getNumberB())
             {
                 calculatorState.setNumberB(parseFloat(results.value));
@@ -370,8 +374,8 @@ function clickHandler(event)
         case "*":
         case "-":
         case "+":
-            calculatorState.enableDecimalButton;
-            
+            calculatorState.enableDecimalButton();
+
             if (calculatorState.isLastKeyPressedEqual())
             {
                 results.value = "";
