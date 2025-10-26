@@ -1,7 +1,7 @@
 /**
  * @fileoverview A Web Based Cacluator in JavaScript
  * @author James
- * @version 1.0.1
+ * @version 1.0.2
  * @date 22nd October 2025
  * @updated 26th October 2025
  * 
@@ -275,7 +275,9 @@ function renderCalculator()
 
     results = document.createElement("input");
     results.readOnly = true;
+    results.autofocus = true;
     results.setAttribute("id", "results");
+    results.addEventListener("keyup", (e) => clickHandler(e));
 
     calculatorContainer.appendChild(results);
 
@@ -340,14 +342,24 @@ function renderResult(numberA, numberB, operator)
 }
 
 /**
- * Handle clicks of calculator buttons
- * @param {MouseEvent} event 
+ * Handle clicks of calculator buttons and
+ * Keypresses
+ * @param {Event} event 
  */
 function clickHandler(event)
 {   
-    const { label } = event.target.dataset;
-    
-    switch (label) {
+    let eventChoice;
+
+    if (event.type === "click")
+    {
+        eventChoice = event.target.dataset.label;
+    }
+    else if (event.type === "keyup")
+    {
+        eventChoice = event.key;
+    }
+
+    switch (eventChoice) {
         case "CLEAR":
             results.value = "";
             calculatorState.clear();
@@ -381,7 +393,7 @@ function clickHandler(event)
                 results.value = "";
             }
 
-            calculatorState.setOperator(label);
+            calculatorState.setOperator(eventChoice);
 
             if (calculatorState.isLastKeyPressedAnOperator())
             {
@@ -390,7 +402,7 @@ function clickHandler(event)
 
             if (calculatorState.getPreviousOperator() === null)
             {
-                calculatorState.setPreviousOperator(label);
+                calculatorState.setPreviousOperator(eventChoice);
             }
 
             for (let i = 0; i < 2; i++)
@@ -419,7 +431,7 @@ function clickHandler(event)
                 calculatorState.setIsChaining();
             }
 
-            calculatorState.setPreviousOperator(label);
+            calculatorState.setPreviousOperator(eventChoice);
             break;
         case "0":
         case "1":
@@ -442,7 +454,7 @@ function clickHandler(event)
                 results.value = "";
                 calculatorState.setIsChaining(false);
             }
-            results.value += label;
+            results.value += eventChoice;
             break;
         case ".":
             results.value += ".";
@@ -451,5 +463,5 @@ function clickHandler(event)
             break;
     }
 
-    calculatorState.setLastKeyPressed(label);
+    calculatorState.setLastKeyPressed(eventChoice);
 }
